@@ -1,0 +1,36 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id        Int      @id @default(autoincrement())
+  storeId   Int
+  slug      String   @unique @db.VarChar(100)
+  name      String   @db.VarChar(100)
+  sku       String   @unique @db.VarChar(100)
+  barcode   String   @db.VarChar(100)
+  price     Int      @db.UnsignedInt
+  stock     Int      @db.UnsignedInt
+  factory   String?   @db.VarChar(100)
+  drugClass String?   @db.VarChar(100)
+  category  String?   @db.VarChar(100)
+  unit      String   @db.VarChar(100)
+  status    Boolean
+  minStock  Int      @db.UnsignedInt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([storeId, price, stock, minStock])
+  @@map("products")
+}
