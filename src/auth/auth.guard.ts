@@ -13,7 +13,7 @@ import { UsersService } from 'src/users/users.service'
 export class AuthGuard implements CanActivate {
     constructor(
         private jwtService: JwtService,
-       private userService: UsersService
+        private userService: UsersService
     ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -30,7 +30,7 @@ export class AuthGuard implements CanActivate {
             const user = await this.userService.findById(payload.sub)
 
             if (!user) {
-                throw new UnauthorizedException
+                throw new UnauthorizedException()
             }
             // 💡 We're assigning the payload to the request object here
             // so that we can access it in our route handlers
