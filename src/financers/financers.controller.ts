@@ -1,24 +1,21 @@
 import {
-    Controller,
-    Get,
-    Post,
     Body,
-    Patch,
-    Param,
+    Controller,
     Delete,
-    UploadedFile,
-    ParseFilePipeBuilder,
+    Get,
     HttpStatus,
+    Param,
+    ParseFilePipeBuilder,
+    Patch,
+    Post,
+    UploadedFile,
     UseInterceptors
 } from '@nestjs/common'
-import { FinancersService } from './financers.service'
+import { FileInterceptor } from '@nestjs/platform-express'
+import { financerUploadOption, MAX_PROFILE_PICTURE_SIZE_IN_BYTES } from 'src/helpers/storage'
 import { CreateFinancerDto } from './dto/create-financer.dto'
 import { UpdateFinancerDto } from './dto/update-financer.dto'
-import { FileInterceptor } from '@nestjs/platform-express'
-import { financerUploadOption } from 'src/helpers/storage'
-import { ZodSerializerDto } from 'nestjs-zod'
-
-const MAX_PROFILE_PICTURE_SIZE_IN_BYTES = 10 * 1024 * 1024
+import { FinancersService } from './financers.service'
 
 @Controller('api/financers')
 export class FinancersController {

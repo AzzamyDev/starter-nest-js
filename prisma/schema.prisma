@@ -42,6 +42,7 @@ model Hotel {
   star           Int             @db.UnsignedInt
   personInRoom   Int             @db.UnsignedInt
   travelPackages TravelPackage[]
+  images    HotelImages[]
 
   @@map("hotels")
 }
@@ -50,6 +51,7 @@ model HotelImages {
   id      String @id @default(uuid())
   hotelId String
   image   String
+  hotel   Hotel  @relation(fields: [hotelId], references: [id])
 
   @@map("hotel_images")
 }
