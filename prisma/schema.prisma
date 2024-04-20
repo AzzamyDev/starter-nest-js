@@ -13,24 +13,247 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Product {
-  id        Int      @id @default(autoincrement())
-  storeId   Int
-  slug      String   @unique @db.VarChar(100)
-  name      String   @db.VarChar(100)
-  sku       String   @unique @db.VarChar(100)
-  barcode   String   @db.VarChar(100)
-  price     Int      @db.UnsignedInt
-  stock     Int      @db.UnsignedInt
-  factory   String?   @db.VarChar(100)
-  drugClass String?   @db.VarChar(100)
-  category  String?   @db.VarChar(100)
-  unit      String   @db.VarChar(100)
-  status    Boolean
-  minStock  Int      @db.UnsignedInt
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// Master
 
-  @@index([storeId, price, stock, minStock])
-  @@map("products")
+model Financer {
+  id      String   @id @default(uuid())
+  name    String   @unique
+  photo   String   @db.VarChar(255)
+  email   String   @unique
+  contact String   @db.VarChar(100)
+  status  Boolean  @default(true)
+  travels Travel[]
+
+  @@map("financers")
+}
+
+model Airline {
+  id            String          @id @default(uuid())
+  name          String          @db.VarChar(100)
+  status        Boolean         @default(true)
+  travelPackages TravelPackage[]
+
+  @@map("airlines")
+}
+
+model Hotel {
+  id            String          @id @default(uuid())
+  name          String          @db.VarChar(100)
+  star          Int             @db.UnsignedInt
+  personInRoom  Int             @db.UnsignedInt
+  travelPackages TravelPackage[]
+
+  @@map("hotels")
+}
+
+model HotelImages {
+  id      String @id @default(uuid())
+  hotelId String
+  image   String
+
+  @@map("hotel_images")
+}
+
+enum UserType {
+  SUPERADMIN @map("Super Admin")
+  ADMIN      @map("Admin")
+  USER       @map("User")
+  MEMBER     @map("Member")
+  AGENT      @map("Agent")
+}
+
+model User {
+  id           String     @id @default(uuid())
+  memberId     String?    @db.VarChar(100)
+  userType     String
+  phone        String?    @db.VarChar(100)
+  email        String?    @db.VarChar(100)
+  password     String?    @db.VarChar(50)
+  status       Boolean    @default(false)
+  refferalCode String?    @db.VarChar(20)
+  createdAt    DateTime   @default(now()) @db.Timestamp()
+  updatedAt    DateTime   @updatedAt @db.Timestamp()
+  detail       UserDetail @relation(fields: [id], references: [userId])
+  travel       Travel?
+  otps         Otp[]
+  orders       Order[]
+  agentMember  User?      @relation("memberRelation", fields: [memberId], references: [id])
+  users        User[]     @relation("memberRelation")
+
+  @@map("users")
+}
+
+enum Gender {
+  MALE   @map("Laki-Laki")
+  FEMALE @map("Perempuan")
+}
+
+enum MaritalStatus {
+  BELUM_MENIKAH @map("Belum Menikah")
+  MENIKAH       @map("Menikah")
+  DUDA          @map("Duda")
+  JANDA         @map("Janda")
+}
+
+model UserDetail {
+  id               String         @id @default(uuid())
+  userId           String         @unique @db.VarChar(100)
+  nik              String?        @db.VarChar(16)
+  fullName         String?        @db.VarChar(255)
+  birthPlace       String?        @db.VarChar(100)
+  birthDate        String?        @db.VarChar(100)
+  gender           Gender?
+  identityAddress  String?        @db.Text
+  residenceAddress String?        @db.Text
+  rt               String?        @db.VarChar(10)
+  rw               String?        @db.VarChar(10)
+  province         String?        @db.VarChar(100)
+  regency          String?        @db.VarChar(100)
+  district         String?        @db.VarChar(100)
+  subDistrict      String?        @db.VarChar(100)
+  postalCode       String?        @db.VarChar(100)
+  maritalStatus    MaritalStatus?
+  biologicalMother String?        @db.VarChar(255)
+  selfiePhoto      String?        @db.VarChar(255)
+  couplePhoto      String?        @db.VarChar(255)
+  identityPhoto    String?        @db.VarChar(255)
+  kkPhoto          String?        @db.VarChar(255)
+  npwpPhoto        String?        @db.VarChar(255)
+  user             User[]
+
+  @@map("user_details")
+}
+
+model Otp {
+  id      String @id @default(uuid())
+  userId  String @db.VarChar(100)
+  otp     String @db.VarChar(6)
+  expired Int    @db.UnsignedInt
+  user    User   @relation(fields: [userId], references: [id])
+}
+
+model Travel {
+  id             String          @id @default(uuid())
+  userId         String?         @unique @db.VarChar(100)
+  financerId     String          @db.VarChar(100)
+  name           String          @db.VarChar(200)
+  photo          String          @db.VarChar(255)
+  address        String          @db.Text
+  contact        String          @db.VarChar(100)
+  user           User?           @relation(fields: [userId], references: [id])
+  travelPackages TravelPackage[]
+  financer       Financer        @relation(fields: [financerId], references: [id])
+
+  @@map("travels")
+}
+
+enum PackageType {
+  UMROH        @map("Umroh")
+  HAJI_REGULER @map("Haji Reguler")
+  HAJI_PLUS    @map("Haji Plus")
+}
+
+enum Tenor {
+  ONE_YEAR   @map("12")
+  TWO_YEAR   @map("24")
+  THREE_YEAR @map("36")
+}
+
+model TravelPackage {
+  id            String         @id @default(uuid())
+  travelId      String         @db.VarChar(100)
+  name          String         @unique
+  photo         String         @db.VarChar(255)
+  type          PackageType
+  airlineId     String         @db.VarChar(100)
+  hotelId       String         @db.VarChar(100)
+  guideName     String         @db.VarChar(150)
+  description   String?        @db.Text
+  status        Boolean        @default(true)
+  travel        Travel         @relation(fields: [travelId], references: [id])
+  packagePrices PackagePrice[]
+  schedules     Schedule[]
+  airline       Airline        @relation(fields: [airlineId], references: [id])
+  hotel         Hotel          @relation(fields: [hotelId], references: [id])
+
+  @@map("travel_packages")
+}
+
+model PackagePrice {
+  id              String        @id @default(uuid())
+  travelPackageId String        @db.VarChar(100)
+  name            String        @db.VarChar(150)
+  price           Int           @db.UnsignedInt
+  cost            Int           @db.UnsignedInt
+  dp              Int           @db.UnsignedInt
+  tenor           Tenor
+  travelPackage   TravelPackage @relation(fields: [travelPackageId], references: [id])
+
+  @@map("package_prices")
+}
+
+model Schedule {
+  id              String        @id @default(uuid())
+  travelPackageId String
+  departure       DateTime      @db.DateTime()
+  departureCity   String        @db.VarChar(100)
+  destinationCity String        @db.VarChar(100)
+  duration        Int
+  quota           Int
+  quotaRemain     Int
+  description     String        @db.Text
+  status          Boolean       @default(true)
+  travelPackage   TravelPackage @relation(fields: [travelPackageId], references: [id])
+
+  @@map("schedules")
+}
+
+enum OrderStatus {
+  REVIEWED         @map("Ditinjau")
+  REJECTED         @map("Ditolak")
+  WAITING_PAYMENT  @map("Menunggu Pembayaran")
+  VERIFY_PAYMENT   @map("Validasi Pembayaran")
+  PAYMENT_REJECTED @map("Pembayaran Ditolak")
+  FINISH           @map("Selesai")
+}
+
+model Order {
+  id               String      @id @default(uuid())
+  userId           String      @db.VarChar(100)
+  paymentMethod    Json
+  travel           Json
+  travelPackage    Json
+  schedule         Json
+  status           OrderStatus
+  orderNumber      String      @unique @db.VarChar(100)
+  paymentExpiredAt Int?        @db.UnsignedInt
+  receiptProof     String?     @db.VarChar(255)
+  receiptProofTime Int?        @db.UnsignedInt
+  verifyBy         String?     @db.VarChar(100)
+  verifyAt         Int?        @db.UnsignedInt
+  rejectReason     String?     @db.Text
+  user             User        @relation(fields: [userId], references: [id])
+
+  @@map("orders")
+}
+
+model PaymentMethod {
+  id            String   @id @default(uuid())
+  name          String   @db.VarChar(100)
+  logo          String   @db.VarChar(255)
+  accountNumber String   @db.VarChar(100)
+  description   String   @db.Text
+  methods       Method[]
+
+  @@map("payment_methods")
+}
+
+model Method {
+  id              String        @id @default(uuid())
+  paymentMethodId String        @db.VarChar(100)
+  label           String        @db.VarChar(100)
+  description     String        @db.Text
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+
+  @@map("methods")
 }
