@@ -1,35 +1,41 @@
-import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Put,
+    UseGuards
+} from '@nestjs/common'
+import { UsersService } from './users.service'
+import { UpdateUserDetailDto } from './dto/update-user.dto'
+import { AuthGuard } from 'src/auth/auth.guard'
 
+@UseGuards(AuthGuard)
 @Controller()
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+    constructor(private readonly usersService: UsersService) {}
 
-  @MessagePattern('createUser')
-  create(@Payload() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
+    @Get('api/users')
+    findAll() {
+        return this.usersService.findAll()
+    }
 
-  @MessagePattern('findAllUsers')
-  findAll() {
-    return this.usersService.findAll();
-  }
+    @Get('api/users/:userId')
+    findById(@Param() userId: string) {
+        return this.usersService.findById(userId)
+    }
 
-  @MessagePattern('findOneUser')
-  findOne(@Payload() id: number) {
-    return this.usersService.findOne(id);
-  }
+    @Put('api/users/:userId')
+    update(
+        @Body() updateUserDto: UpdateUserDetailDto,
+        @Param() userId: string
+    ) {
+        return this.usersService.update(userId, updateUserDto)
+    }
 
-  @MessagePattern('updateUser')
-  update(@Payload() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(updateUserDto.id, updateUserDto);
-  }
-
-  @MessagePattern('removeUser')
-  remove(@Payload() id: number) {
-    return this.usersService.remove(id);
-  }
+    @Delete('api/users/:userId')
+    remove(@Param() userId: string) {
+        return this.usersService.remove(userId)
+    }
 }

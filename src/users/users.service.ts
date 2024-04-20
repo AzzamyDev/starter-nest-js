@@ -1,26 +1,75 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { UpdateUserDetailDto } from './dto/update-user.dto'
+import { PrismaService } from 'src/config/prisma/prisma.service'
+import * as moment from 'moment'
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
-  }
+    constructor(private prismaService: PrismaService) {}
 
-  findAll() {
-    return `This action returns all users`;
-  }
+    async findAll() {
+        return this.prismaService.user.findMany()
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
+    async findById(id: string) {
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                id
+            },
+            include: {
+                detail: true
+            }
+        })
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+        console.log(user)
+        if (!user) {
+            throw new HttpException('User not found', HttpStatus.NOT_FOUND)
+        }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
+        return user
+    }
+
+    async findByPhone(phone: string) {
+        const user = this.prismaService.user.findUnique({
+            where: {
+                phone
+            },
+            include: {
+                detail: true
+            }
+        })
+
+        if (!user) {
+            throw new HttpException('User not found', HttpStatus.NOT_FOUND)
+        }
+
+        return user
+    }
+
+    async findByOtp(otp: string) {
+        const now = moment()
+        return this.prismaService.otp.findUnique({
+            where: {
+                otp,
+                expired: {
+                    gt: now.unix()
+                }
+            },
+            include: {
+                user: {
+                    include: {
+                        detail: true
+                    }
+                }
+            }
+        })
+    }
+
+    async update(id: string, updateUserDetailDto: UpdateUserDetailDto) {
+        return `This action updates a #${id} user`
+    }
+
+    async remove(id: string) {
+        return `This action removes a #${id} user`
+    }
 }
