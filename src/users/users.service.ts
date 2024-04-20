@@ -45,11 +45,14 @@ export class UsersService {
         return user
     }
 
-    async findByOtp(otp: string) {
+    async getOtp(userId: string, otp: string) {
         const now = moment()
         return this.prismaService.otp.findUnique({
             where: {
-                otp,
+                userId_otp: {
+                    userId,
+                    otp
+                },
                 expired: {
                     gt: now.unix()
                 }

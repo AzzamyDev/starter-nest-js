@@ -127,11 +127,12 @@ model UserDetail {
 model Otp {
   id        String @id @default(uuid())
   userId    String @db.VarChar(100)
-  otp       String @unique @db.VarChar(6)
+  otp       String @db.VarChar(6)
   expired   Int    @db.UnsignedInt
   createdAt Int    @db.UnsignedInt
   user      User   @relation(fields: [userId], references: [id])
 
+  @@unique([userId, otp])
   @@map("otps")
 }
 

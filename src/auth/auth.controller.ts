@@ -2,6 +2,7 @@ import {
     Body,
     Controller,
     Get,
+    Param,
     Post,
     Query,
     Request,
@@ -37,17 +38,36 @@ export class AuthController {
         try {
             const result = await this.authService.login(phone)
             return {
-                message: result
+                userId: result
             }
         } catch (error) {
             throw error
         }
     }
 
-    @Post('api/validate/otp')
-    async validateOtp(@Query('otp') otp: string) {
+    @Post('api/validate/otp/register/:userId')
+    async validateOtpRegister(
+        @Param('userId') userId: string,
+        @Query('otp') otp: string
+    ) {
         try {
-            const result = await this.authService.validate(otp)
+            const result = await this.authService.validate(userId, otp, false)
+            return {
+                message: 'Login succesfully',
+                data: result
+            }
+        } catch (error) {
+            throw error
+        }
+    }
+
+    @Post('api/validate/otp/login/:userId')
+    async validateOtpLogin(
+        @Param('userId') userId: string,
+        @Query('otp') otp: string
+    ) {
+        try {
+            const result = await this.authService.validate(userId, otp, true)
             return {
                 message: 'Login succesfully',
                 data: result

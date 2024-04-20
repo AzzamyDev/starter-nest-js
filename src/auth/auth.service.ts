@@ -49,7 +49,8 @@ export class AuthService {
             data: {
                 memberId: member?.id,
                 userType: UserType.USER,
-                ...payload
+                ...payload,
+                status: false
             },
             include: {
                 detail: true
@@ -71,10 +72,13 @@ export class AuthService {
         const now = moment()
         const expired = now.clone().add(5, 'minutes')
 
+        console.log(user.phone)
         await this.prismaService.otp.upsert({
             where: {
-                userId: user.id,
-                otp: '123456'
+                userId_otp: {
+                    otp: '123456',
+                    userId: user.id
+                }
             },
             update: {
                 expired: expired.unix()
@@ -88,21 +92,35 @@ export class AuthService {
             }
         })
 
-        return 'OTP sent'
+        return user.id
     }
 
-    async validate(otp: string) {
-        const userOtp = await this.userService.findByOtp(otp)
+    async validate(userId: string, otp: string, isLogin: boolean) {
+        const userOtp = await this.userService.getOtp(userId, otp)
 
         if (!userOtp) {
             throw new HttpException('Invalid OTP', HttpStatus.BAD_REQUEST)
         }
 
+        let data: any
         const { user } = userOtp
+
+        if (!isLogin) {
+            data = await this.prismaService.user.update({
+                where: {
+                    id: user.id
+                },
+                data: {
+                    status: true
+                }
+            })
+        } else {
+            data = user
+        }
 
         const payload = { sub: user.id, phone: user.phone }
         return {
-            user,
+            user: data,
             token: await this.jwtService.signAsync(payload)
         }
     }
