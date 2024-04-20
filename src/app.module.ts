@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module'
 import { ConfigModule } from '@nestjs/config'
 import { FinancersModule } from './financers/financers.module'
+import { AirlinesModule } from './airlines/airlines.module';
 
 @Module({
     imports: [
@@ -13,7 +14,8 @@ import { FinancersModule } from './financers/financers.module'
         UsersModule,
         AuthModule,
         ConfigModule.forRoot(),
-        FinancersModule
+        FinancersModule,
+        AirlinesModule
     ],
     controllers: [],
     providers: [
