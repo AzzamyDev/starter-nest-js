@@ -42,7 +42,7 @@ model Hotel {
   star           Int             @db.UnsignedInt
   personInRoom   Int             @db.UnsignedInt
   travelPackages TravelPackage[]
-  images    HotelImages[]
+  images         HotelImages[]
 
   @@map("hotels")
 }
@@ -64,24 +64,33 @@ enum UserType {
   AGENT      @map("Agent")
 }
 
+enum UpgradeStatus {
+  REVIEWED @map("Ditinjau")
+  REJECTED @map("Ditolak")
+  APPROVED @map("Disetujui")
+}
+
 model User {
-  id           String      @id @default(uuid())
-  memberId     String?     @db.VarChar(100)
-  userType     UserType
-  fullName     String?     @db.VarChar(255)
-  phone        String?     @unique @db.VarChar(100)
-  email        String?     @unique @db.VarChar(100)
-  password     String?     @db.VarChar(50)
-  status       Boolean     @default(true)
-  refferalCode String?     @db.VarChar(20)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  detail       UserDetail?
-  travel       Travel?
-  otps         Otp[]
-  orders       Order[]
-  agentMember  User?       @relation("memberRelation", fields: [memberId], references: [id])
-  users        User[]      @relation("memberRelation")
+  id             String         @id @default(uuid())
+  memberId       String?        @db.VarChar(100)
+  userType       UserType
+  fullName       String?        @db.VarChar(255)
+  phone          String?        @unique @db.VarChar(100)
+  email          String?        @unique @db.VarChar(100)
+  password       String?        @db.VarChar(255)
+  status         Boolean        @default(true)
+  upgradeStatus  UpgradeStatus?
+  rejectedReason String?        @db.Text
+  refferalCode   String?        @db.VarChar(20)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  detail         UserDetail?
+  travel         Travel?
+  otps           Otp[]
+  orders         Order[]
+  agentMember    User?          @relation("memberRelation", fields: [memberId], references: [id])
+  users          User[]         @relation("memberRelation")
+  agent          Agent?
 
   @@map("users")
 }
@@ -136,6 +145,17 @@ model Otp {
 
   @@unique([userId, otp])
   @@map("otps")
+}
+
+model Agent {
+  id      String @id @default(uuid())
+  userId String @unique
+  name    String
+  siup    String
+  npwp    String
+  user    User?  @relation(fields: [userId], references: [id])
+
+  @@map("agents")
 }
 
 model Travel {

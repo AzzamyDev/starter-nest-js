@@ -2,19 +2,57 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { UpdateUserDetailDto } from './dto/update-user.dto'
 import { PrismaService } from 'src/config/prisma/prisma.service'
 import * as moment from 'moment'
+import { Agent } from './entities/user.entity'
+import { UpgradeStatus, UserType } from '@prisma/client'
+import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class UsersService {
     constructor(private prismaService: PrismaService) {}
 
+    async upgradeToAgent(userId: string, data: Agent) {
+        const userData = await this.prismaService.user.findFirstOrThrow({
+            where: {
+                id: userId
+            }
+        })
+
+        // const saltOrRounds = 10
+        // const password = userData.phone as string
+        // const hashedPassword = await bcrypt.hash(password, saltOrRounds)
+
+        const [user, agent] = await this.prismaService.$transaction([
+            this.prismaService.user.update({
+                where: {
+                    id: userId
+                },
+                data: {
+                    userType: UserType.AGENT,
+                    upgradeStatus: UpgradeStatus.REVIEWED
+                    // password: hashedPassword
+                }
+            }),
+            this.prismaService.agent.create({
+                data: {
+                    userId,
+                    ...data
+                }
+            })
+        ])
+
+        return { user, agent }
+    }
+
+    // Upgrade to Member
+
     async findAll() {
         return this.prismaService.user.findMany()
     }
 
-    async findById(id: string) {
+    async findById(userId: string) {
         const user = await this.prismaService.user.findUnique({
             where: {
-                id
+                id: userId
             },
             include: {
                 detail: true
@@ -74,4 +112,8 @@ export class UsersService {
     async remove(id: string) {
         return `This action removes a #${id} user`
     }
+
+    // approved agent
+
+    // approved member
 }

@@ -3,39 +3,93 @@ import {
     Controller,
     Delete,
     Get,
+    HttpStatus,
     Param,
+    ParseFilePipeBuilder,
+    Patch,
+    Post,
     Put,
-    UseGuards
+    UploadedFiles,
+    UseGuards,
+    UseInterceptors
 } from '@nestjs/common'
-import { UsersService } from './users.service'
-import { UpdateUserDetailDto } from './dto/update-user.dto'
+import { FileFieldsInterceptor } from '@nestjs/platform-express'
 import { AuthGuard } from 'src/auth/auth.guard'
+import {
+    agentUploadOption,
+    MAX_PROFILE_PICTURE_SIZE_IN_BYTES
+} from 'src/helpers/storage'
+import { UpdateUserDetailDto } from './dto/update-user.dto'
+import { UsersService } from './users.service'
 
 @UseGuards(AuthGuard)
-@Controller()
+@Controller('api/users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    @Get('api/users')
-    findAll() {
-        return this.usersService.findAll()
+    @Get()
+    async findAll() {
+        return {
+            message: 'Success',
+            data: await this.usersService.findAll()
+        }
     }
 
-    @Get('api/users/:userId')
-    findById(@Param() userId: string) {
-        return this.usersService.findById(userId)
+    @Get(':userId')
+    async findById(@Param('userId') userId: string) {
+        return {
+            message: 'Success',
+            data: await this.usersService.findById(userId)
+        }
     }
 
-    @Put('api/users/:userId')
-    update(
+    @Patch(':userId')
+    async update(
         @Body() updateUserDto: UpdateUserDetailDto,
         @Param() userId: string
     ) {
-        return this.usersService.update(userId, updateUserDto)
+        return {
+            message: 'Success',
+            data: await this.usersService.update(userId, updateUserDto)
+        }
     }
 
-    @Delete('api/users/:userId')
-    remove(@Param() userId: string) {
-        return this.usersService.remove(userId)
+    @Delete(':userId')
+    async remove(@Param() userId: string) {
+        return { message: await this.usersService.remove(userId) }
     }
+
+    @Post(':userId/upgrade/agent')
+    @UseInterceptors(
+        FileFieldsInterceptor(
+            [
+                { name: 'siup', maxCount: 1 },
+                { name: 'npwp', maxCount: 1 }
+            ],
+            agentUploadOption
+        )
+    )
+    async upgradeToAgent(
+        @Param('userId') userId: string,
+        @Body('name') name: string,
+        @UploadedFiles(
+            new ParseFilePipeBuilder()
+                .build({
+                    errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+                    fileIsRequired: true
+                })
+        )
+        files: { siup: Express.Multer.File[]; npwp: Express.Multer.File[] }
+    ) {
+        return {
+            message: 'Success',
+            data: await this.usersService.upgradeToAgent(userId, {
+                name,
+                siup: files?.siup[0].path,
+                npwp: files?.npwp[0].path
+            })
+        }
+    }
+
+    // Upgdare to Member
 }

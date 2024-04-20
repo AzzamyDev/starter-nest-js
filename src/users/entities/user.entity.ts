@@ -7,3 +7,15 @@ export const UserType = {
     MEMBER: 'Member',
     AGENT: 'Agent'
 } as const
+
+export const UpgradeStatus = {
+    REVIEWED: 'Ditinjau',
+    REJECTED: 'Ditolak',
+    APPROVED: 'Disetujui'
+} as const
+
+export type Agent = {
+    name: string
+    siup: string
+    npwp: string
+}
