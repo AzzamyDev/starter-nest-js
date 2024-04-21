@@ -13,9 +13,3 @@ export const UpgradeStatus = {
     REJECTED: 'Ditolak',
     APPROVED: 'Disetujui'
 } as const
-
-export type Agent = {
-    name: string
-    siup: string
-    npwp: string
-}

@@ -9,6 +9,7 @@ import {
     Patch,
     Post,
     UploadedFile,
+    UseGuards,
     UseInterceptors
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
@@ -16,7 +17,9 @@ import { financerUploadOption, MAX_PROFILE_PICTURE_SIZE_IN_BYTES } from 'src/hel
 import { CreateFinancerDto } from './dto/create-financer.dto'
 import { UpdateFinancerDto } from './dto/update-financer.dto'
 import { FinancersService } from './financers.service'
+import { AuthGuard } from 'src/auth/auth.guard'
 
+@UseGuards(AuthGuard)
 @Controller('api/financers')
 export class FinancersController {
     constructor(private readonly financersService: FinancersService) {}
