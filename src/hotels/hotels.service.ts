@@ -69,7 +69,7 @@ export class HotelsService {
                     ? {
                           images: {
                               createMany: {
-                                  data: images.map((image) => ({
+                                  data: images?.map((image) => ({
                                       image
                                   }))
                               }

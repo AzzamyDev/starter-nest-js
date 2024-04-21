@@ -1,26 +1,23 @@
 import {
-    Controller,
-    Get,
-    Post,
     Body,
-    Patch,
-    Param,
+    Controller,
     Delete,
-    UseInterceptors,
-    UploadedFiles,
-    ParseFilePipeBuilder,
+    Get,
     HttpStatus,
-    UseGuards
+    Param,
+    ParseFilePipeBuilder,
+    Patch,
+    Post,
+    UploadedFiles,
+    UseGuards,
+    UseInterceptors
 } from '@nestjs/common'
-import { HotelsService } from './hotels.service'
+import { FilesInterceptor } from '@nestjs/platform-express'
+import { AuthGuard } from 'src/auth/auth.guard'
+import { hotelUploadOption } from 'src/helpers/storage'
 import { CreateHotelDto } from './dto/create-hotel.dto'
 import { UpdateHotelDto } from './dto/update-hotel.dto'
-import { FileInterceptor } from '@nestjs/platform-express'
-import {
-    hotelUploadOption,
-    MAX_PROFILE_PICTURE_SIZE_IN_BYTES
-} from 'src/helpers/storage'
-import { AuthGuard } from 'src/auth/auth.guard'
+import { HotelsService } from './hotels.service'
 
 @UseGuards(AuthGuard)
 @Controller('api/hotels')
@@ -28,18 +25,14 @@ export class HotelsController {
     constructor(private readonly hotelsService: HotelsService) {}
 
     @Post()
-    @UseInterceptors(FileInterceptor('images', hotelUploadOption))
+    @UseInterceptors(FilesInterceptor('images', 5, hotelUploadOption))
     async create(
         @Body() createHotelDto: CreateHotelDto,
         @UploadedFiles(
-            new ParseFilePipeBuilder()
-                .addMaxSizeValidator({
-                    maxSize: MAX_PROFILE_PICTURE_SIZE_IN_BYTES
-                })
-                .build({
-                    errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-                    fileIsRequired: false
-                })
+            new ParseFilePipeBuilder().build({
+                errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+                fileIsRequired: false
+            })
         )
         images: Array<Express.Multer.File>
     ) {
@@ -69,19 +62,15 @@ export class HotelsController {
     }
 
     @Patch(':id')
-    @UseInterceptors(FileInterceptor('images', hotelUploadOption))
+    @UseInterceptors(FilesInterceptor('images', 5, hotelUploadOption))
     async update(
         @Param('id') id: string,
         @Body() updateHotelDto: UpdateHotelDto,
         @UploadedFiles(
-            new ParseFilePipeBuilder()
-                .addMaxSizeValidator({
-                    maxSize: MAX_PROFILE_PICTURE_SIZE_IN_BYTES
-                })
-                .build({
-                    errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-                    fileIsRequired: false
-                })
+            new ParseFilePipeBuilder().build({
+                errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+                fileIsRequired: false
+            })
         )
         images: Array<Express.Multer.File>
     ) {
@@ -90,7 +79,7 @@ export class HotelsController {
             data: await this.hotelsService.update(
                 id,
                 updateHotelDto,
-                images.map((file) => file.path)
+                images?.map((file) => file.path)
             )
         }
     }
