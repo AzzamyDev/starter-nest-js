@@ -44,6 +44,34 @@ export class UsersService {
     }
 
     // Upgrade to Member
+    async upgradeToMember(userId: string, agentId: string, sk: string) {
+        const userData = await this.prismaService.user.findFirstOrThrow({
+            where: {
+                id: userId
+            }
+        })
+
+        const [user, requestMember] = await this.prismaService.$transaction([
+            this.prismaService.user.update({
+                where: {
+                    id: userId
+                },
+                data: {
+                    userType: UserType.MEMBER,
+                    upgradeStatus: UpgradeStatus.REVIEWED
+                }
+            }),
+            this.prismaService.requestMember.create({
+                data: {
+                    userId,
+                    agentId,
+                    sk
+                }
+            })
+        ])
+
+        return { user, requestMember }
+    }
 
     async findAll() {
         return this.prismaService.user.findMany()
@@ -105,8 +133,39 @@ export class UsersService {
         })
     }
 
-    async update(id: string, updateUserDetailDto: UpdateUserDetailDto) {
-        return `This action updates a #${id} user`
+    async update(
+        updateUserDetailDto: any,
+        selfiePhoto: string,
+        couplePhoto: string,
+        identityPhoto: string,
+        kkPhoto: string,
+        npwpPhoto: string
+    ) {
+        return this.prismaService.userDetail.create({
+            data: {
+                userId: updateUserDetailDto.userId,
+                nik: updateUserDetailDto.nik,
+                birthPlace: updateUserDetailDto.birthPlace,
+                birthDate: updateUserDetailDto.birthDate,
+                gender: updateUserDetailDto.gender,
+                identityAddress: updateUserDetailDto.identityAddress,
+                residenceAddress: updateUserDetailDto.residenceAddress,
+                rt: updateUserDetailDto.rt,
+                rw: updateUserDetailDto.rw,
+                province: updateUserDetailDto.province,
+                regency: updateUserDetailDto.regency,
+                district: updateUserDetailDto.district,
+                subDistrict: updateUserDetailDto.subDistrict,
+                postalCode: updateUserDetailDto.postalCode,
+                maritalStatus: updateUserDetailDto.maritalStatus,
+                biologicalMother: updateUserDetailDto.biologicalMother,
+                selfiePhoto,
+                couplePhoto,
+                identityPhoto,
+                kkPhoto,
+                npwpPhoto
+            }
+        })
     }
 
     async remove(id: string) {

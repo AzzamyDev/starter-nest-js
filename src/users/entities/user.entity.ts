@@ -19,3 +19,9 @@ export type Agent = {
     siup: string
     npwp: string
 }
+
+export type RequestMember = {
+    userId: string
+    sk: string
+    agentId: string
+}
