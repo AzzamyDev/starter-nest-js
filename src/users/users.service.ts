@@ -1,10 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
-import { UpdateUserDetailDto } from './dto/update-user.dto'
-import { PrismaService } from 'src/config/prisma/prisma.service'
 import * as moment from 'moment'
+import { PrismaService } from 'src/config/prisma/prisma.service'
 import { Agent } from './entities/user.entity'
-import { UpgradeStatus, UserType } from '@prisma/client'
-import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class UsersService {

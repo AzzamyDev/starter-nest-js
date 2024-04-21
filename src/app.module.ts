@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config'
 import { FinancersModule } from './financers/financers.module'
 import { AirlinesModule } from './airlines/airlines.module'
 import { HotelsModule } from './hotels/hotels.module'
+import { TravelsModule } from './travels/travels.module';
 
 @Module({
     imports: [
@@ -17,7 +18,8 @@ import { HotelsModule } from './hotels/hotels.module'
         ConfigModule.forRoot(),
         FinancersModule,
         AirlinesModule,
-        HotelsModule
+        HotelsModule,
+        TravelsModule
     ],
     controllers: [],
     providers: [
