@@ -8,7 +8,6 @@ import {
     ParseFilePipeBuilder,
     Patch,
     Post,
-    Put,
     UploadedFiles,
     UseGuards,
     UseInterceptors
@@ -73,11 +72,10 @@ export class UsersController {
         @Param('userId') userId: string,
         @Body('name') name: string,
         @UploadedFiles(
-            new ParseFilePipeBuilder()
-                .build({
-                    errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-                    fileIsRequired: true
-                })
+            new ParseFilePipeBuilder().build({
+                errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+                fileIsRequired: true
+            })
         )
         files: { siup: Express.Multer.File[]; npwp: Express.Multer.File[] }
     ) {
