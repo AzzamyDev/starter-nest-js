@@ -57,37 +57,5 @@ export class UsersController {
         return { message: await this.usersService.remove(userId) }
     }
 
-    @Post(':userId/upgrade/agent')
-    @UseInterceptors(
-        FileFieldsInterceptor(
-            [
-                { name: 'siup', maxCount: 1 },
-                { name: 'npwp', maxCount: 1 }
-            ],
-            agentUploadOption
-        )
-    )
-    async upgradeToAgent(
-        @Param('userId') userId: string,
-        @Body('name') name: string,
-        @UploadedFiles(
-            new ParseFilePipeBuilder()
-                .build({
-                    errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-                    fileIsRequired: true
-                })
-        )
-        files: { siup: Express.Multer.File[]; npwp: Express.Multer.File[] }
-    ) {
-        return {
-            message: 'Success',
-            data: await this.usersService.upgradeToAgent(userId, {
-                name,
-                siup: files?.siup[0].path,
-                npwp: files?.npwp[0].path
-            })
-        }
-    }
-
     // Upgdare to Member
 }
