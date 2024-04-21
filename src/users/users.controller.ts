@@ -8,7 +8,6 @@ import {
     ParseFilePipeBuilder,
     Patch,
     Post,
-    Put,
     UploadedFiles,
     UseGuards,
     UseInterceptors
@@ -16,8 +15,7 @@ import {
 import { FileFieldsInterceptor } from '@nestjs/platform-express'
 import { AuthGuard } from 'src/auth/auth.guard'
 import {
-    agentUploadOption,
-    MAX_PROFILE_PICTURE_SIZE_IN_BYTES
+    agentUploadOption
 } from 'src/helpers/storage'
 import { UpdateUserDetailDto } from './dto/update-user.dto'
 import { UsersService } from './users.service'

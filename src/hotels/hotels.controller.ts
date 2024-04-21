@@ -9,7 +9,8 @@ import {
     UseInterceptors,
     UploadedFiles,
     ParseFilePipeBuilder,
-    HttpStatus
+    HttpStatus,
+    UseGuards
 } from '@nestjs/common'
 import { HotelsService } from './hotels.service'
 import { CreateHotelDto } from './dto/create-hotel.dto'
@@ -19,7 +20,9 @@ import {
     hotelUploadOption,
     MAX_PROFILE_PICTURE_SIZE_IN_BYTES
 } from 'src/helpers/storage'
+import { AuthGuard } from 'src/auth/auth.guard'
 
+@UseGuards(AuthGuard)
 @Controller('api/hotels')
 export class HotelsController {
     constructor(private readonly hotelsService: HotelsService) {}

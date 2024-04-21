@@ -5,12 +5,15 @@ import {
     Body,
     Patch,
     Param,
-    Delete
+    Delete,
+    UseGuards
 } from '@nestjs/common'
 import { AirlinesService } from './airlines.service'
 import { CreateAirlineDto } from './dto/create-airline.dto'
 import { UpdateAirlineDto } from './dto/update-airline.dto'
+import { AuthGuard } from 'src/auth/auth.guard'
 
+@UseGuards(AuthGuard)
 @Controller('api/airlines')
 export class AirlinesController {
     constructor(private readonly airlinesService: AirlinesService) {}
