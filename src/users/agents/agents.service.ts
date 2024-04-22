@@ -50,5 +50,20 @@ export class AgentsService {
         return { user, agent }
     }
 
-    async getAgentByCity() {}
+    async getAgentByCity(regency: string) {
+        const agentData = await this.prismaService.agent.findFirstOrThrow({
+            where: {
+                user: {
+                    detail: {
+                        regency
+                    }
+                }
+            },
+            include: {
+                user: true
+            }
+        })
+
+        return agentData
+    }
 }

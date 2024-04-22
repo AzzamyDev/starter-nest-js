@@ -147,4 +147,31 @@ export class TravelPackagesService {
 
         return 'Data Deleted'
     }
+
+    async GetHajiUmrahByMitraId(mitraId: string) {
+        const pakage = await this.prismaService.travelPackage.findFirstOrThrow({
+            where: {
+                travel: {
+                    user: {
+                        agent: {
+                            id: mitraId
+                        }
+                    }
+                }
+            }
+        })
+
+        return pakage
+    }
+
+    async GetHajiUmrahById(id: string) {
+        const pakage = await this.prismaService.travelPackage.findFirstOrThrow({
+            where: { id },
+            include: {
+                travel: true
+            }
+        })
+
+        return pakage
+    }
 }

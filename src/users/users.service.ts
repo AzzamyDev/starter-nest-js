@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import * as moment from 'moment'
 import { PrismaService } from 'src/config/prisma/prisma.service'
-import { Agent } from './entities/user.entity'
+import { Agent, UpgradeStatus, UserType } from './entities/user.entity'
 
 @Injectable()
 export class UsersService {
@@ -24,8 +24,8 @@ export class UsersService {
                     id: userId
                 },
                 data: {
-                    userType: UserType.AGENT,
-                    upgradeStatus: UpgradeStatus.REVIEWED
+                    userType: 'AGENT',
+                    upgradeStatus: 'REVIEWED'
                     // password: hashedPassword
                 }
             }),
@@ -54,8 +54,8 @@ export class UsersService {
                     id: userId
                 },
                 data: {
-                    userType: UserType.MEMBER,
-                    upgradeStatus: UpgradeStatus.REVIEWED
+                    userType: 'MEMBER',
+                    upgradeStatus: 'REVIEWED'
                 }
             }),
             this.prismaService.requestMember.create({

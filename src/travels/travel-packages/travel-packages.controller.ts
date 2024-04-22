@@ -92,4 +92,22 @@ export class TravelPackagesController {
             message: await this.travelPackagesService.remove(id)
         }
     }
+
+    @Get(':mitraId')
+    async GetPakageByMitraId(@Param('mitraId') mitraId: string) {
+        return {
+            message: 'Success',
+            data: await this.travelPackagesService.GetHajiUmrahByMitraId(
+                mitraId
+            )
+        }
+    }
+
+    @Get(':id')
+    async GetPakageById(@Param('id') id: string) {
+        return {
+            message: 'Success',
+            data: await this.travelPackagesService.GetHajiUmrahById(id)
+        }
+    }
 }

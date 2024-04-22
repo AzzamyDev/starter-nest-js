@@ -1,4 +1,4 @@
-import { Body, Controller, HttpStatus, Param, ParseFilePipeBuilder, Post, UploadedFiles, UseInterceptors } from '@nestjs/common'
+import { Body, Controller, Get, HttpStatus, Param, ParseFilePipeBuilder, Post, UploadedFiles, UseInterceptors } from '@nestjs/common'
 import { AgentsService } from './agents.service'
 import { FileFieldsInterceptor } from '@nestjs/platform-express'
 import { agentUploadOption } from 'src/helpers/storage'
@@ -38,7 +38,11 @@ export class AgentsController {
         }
     }
 
-    async getAgentByCity(){
-        
+    @Get()
+    async getAgentByCity(@Body('regency') regency: string) {
+        return {
+            message: 'Success',
+            data: await this.agentsService.getAgentByCity(regency)
+        }
     }
 }
