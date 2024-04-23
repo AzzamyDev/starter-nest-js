@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { UpgradeStatus, UserType } from '@prisma/client'
 import { PrismaService } from 'src/config/prisma/prisma.service'
 import { Agent } from './entities/agent.entity'
-import { UpgradeStatus, UserType } from '@prisma/client'
 
 @Injectable()
 export class AgentsService {
@@ -48,22 +48,5 @@ export class AgentsService {
         ])
 
         return { user, agent }
-    }
-
-    async getAgentByCity(regency: string) {
-        const agentData = await this.prismaService.agent.findFirstOrThrow({
-            where: {
-                user: {
-                    detail: {
-                        regency
-                    }
-                }
-            },
-            include: {
-                user: true
-            }
-        })
-
-        return agentData
     }
 }

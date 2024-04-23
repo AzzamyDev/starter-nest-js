@@ -37,12 +37,4 @@ export class AgentsController {
             })
         }
     }
-
-    @Get()
-    async getAgentByCity(@Body('regency') regency: string) {
-        return {
-            message: 'Success',
-            data: await this.agentsService.getAgentByCity(regency)
-        }
-    }
 }

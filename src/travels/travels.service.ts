@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { CreateTravelDto } from './dto/create-travel.dto'
 import { UpdateTravelDto } from './dto/update-travel.dto'
 import { PrismaService } from 'src/config/prisma/prisma.service'
+import { UserType } from '@prisma/client'
 
 @Injectable()
 export class TravelsService {
@@ -68,5 +69,55 @@ export class TravelsService {
         })
 
         return 'Data Deleted'
+    }
+
+    async getTravelByCity(regency: string) {
+        const search = `%${regency}%`
+        const detailIds = await this.prismaService.$queryRaw<
+            { id: string }[]
+        >`SELECT id FROM user_details WHERE regency LIKE ${search};`
+        const travelIds = await this.prismaService.$queryRaw<
+            { id: string }[]
+        >`SELECT id FROM travels WHERE address LIKE ${search};`
+
+        const userAgents = await this.prismaService.user.findMany({
+            where: {
+                userType: UserType.AGENT,
+                OR: [
+                    {
+                        detail: {
+                            id: {
+                                in: detailIds.map((row) => row.id)
+                            }
+                        }
+                    },
+                    {
+                        travel: {
+                            id: {
+                                in: travelIds.map((row) => row.id)
+                            }
+                        }
+                    }
+                ]
+            },
+            select: {
+                travel: {
+                    select: {
+                        id: true,
+                        name: true,
+                        photo: true,
+                        address: true,
+                        contact: true,
+                        _count: {
+                            select: {
+                                travelPackages: true
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        return userAgents.map((it) => it.travel)
     }
 }

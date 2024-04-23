@@ -55,6 +55,14 @@ export class TravelPackagesController {
         }
     }
 
+    @Get('travel/:id')
+    async getByTravelId(@Param('id') id: string) {
+        return {
+            message: 'Success',
+            data: await this.travelPackagesService.getByTravelId(id)
+        }
+    }
+
     @Get(':id')
     async findOne(@Param('id') id: string) {
         return {
@@ -90,24 +98,6 @@ export class TravelPackagesController {
     async remove(@Param('id') id: string) {
         return {
             message: await this.travelPackagesService.remove(id)
-        }
-    }
-
-    @Get(':mitraId')
-    async GetPakageByMitraId(@Param('mitraId') mitraId: string) {
-        return {
-            message: 'Success',
-            data: await this.travelPackagesService.GetHajiUmrahByMitraId(
-                mitraId
-            )
-        }
-    }
-
-    @Get(':id')
-    async GetPakageById(@Param('id') id: string) {
-        return {
-            message: 'Success',
-            data: await this.travelPackagesService.GetHajiUmrahById(id)
         }
     }
 }

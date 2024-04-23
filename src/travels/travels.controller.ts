@@ -8,6 +8,7 @@ import {
     ParseFilePipeBuilder,
     Patch,
     Post,
+    Query,
     UploadedFile,
     UseGuards,
     UseInterceptors
@@ -24,6 +25,14 @@ import { AuthGuard } from 'src/auth/auth.guard'
 export class TravelsController {
     constructor(private readonly travelsService: TravelsService) {}
 
+    @Get('/city')
+    async getAgentByCity(@Query('regency') regency: string) {
+        return {
+            message: 'Success',
+            data: await this.travelsService.getTravelByCity(regency)
+        }
+    }
+    
     @Post()
     @UseInterceptors(FileInterceptor('photo', travelUploadOption))
     async create(
