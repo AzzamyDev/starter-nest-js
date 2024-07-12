@@ -1,5 +1,5 @@
 {
-  "name": "medivel",
+  "name": "starter",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -39,7 +39,6 @@
     "@nestjs/config": "^3.2.2",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/schematics": "^10.0.0",
-    "@nestjs/swagger": "^7.3.1",
     "@nestjs/testing": "^10.0.0",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
@@ -57,7 +56,6 @@
     "prisma": "^5.12.1",
     "source-map-support": "^0.5.21",
     "supertest": "^6.3.3",
-    "swagger-ui-express": "^5.0.0",
     "ts-jest": "^29.1.0",
     "ts-loader": "^9.4.3",
     "ts-node": "^10.9.1",
