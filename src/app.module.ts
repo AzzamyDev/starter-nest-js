@@ -3,9 +3,10 @@ import { PrismaModule } from './config/prisma/prisma.module'
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod'
 import { ConfigModule } from '@nestjs/config'
+import { UsersModule } from './features/users/users.module'
 
 @Module({
-    imports: [PrismaModule, ConfigModule.forRoot()],
+    imports: [PrismaModule, ConfigModule.forRoot(), UsersModule],
     controllers: [],
     providers: [
         {
