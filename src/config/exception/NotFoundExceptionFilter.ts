@@ -4,19 +4,24 @@ import {
     ExceptionFilter,
     HttpStatus
 } from '@nestjs/common'
-import { NotFoundError } from '@prisma/client/runtime/library'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { Response } from 'express'
 
-@Catch(NotFoundError)
+@Catch(PrismaClientKnownRequestError)
 export class NotFoundExceptionFilter implements ExceptionFilter {
-    catch(exception: NotFoundError, host: ArgumentsHost) {
-        const ctx = host.switchToHttp()
-        const response = ctx.getResponse<Response>()
-        const status = HttpStatus.NOT_FOUND
+    catch(exception: PrismaClientKnownRequestError, host: ArgumentsHost) {
+        if (exception.code === 'P2025') {
+            // RecordNotFound
+            const ctx = host.switchToHttp()
+            const response = ctx.getResponse<Response>()
+            const status = HttpStatus.NOT_FOUND
 
-        response.status(status).json({
-            statusCode: status,
-            message: exception.message
-        })
+            response.status(status).json({
+                statusCode: status,
+                message: exception.message
+            })
+        } else {
+            // Handle other Prisma errors
+        }
     }
 }
