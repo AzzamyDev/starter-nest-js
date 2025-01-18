@@ -3,6 +3,7 @@ import { existsSync, mkdirSync } from 'fs'
 import { diskStorage } from 'multer'
 import { v4 as uuid } from 'uuid'
 import { HttpException, HttpStatus } from '@nestjs/common'
+import { Request } from 'express'
 
 export const MAX_PROFILE_PICTURE_SIZE_IN_BYTES = 10 * 1024 * 1024
 // Multer configuration
@@ -11,14 +12,25 @@ export const multerConfig = {
 }
 
 // Multer upload options
-export const UploadOption = {
+/* 
+Paramters:
+    mimeValidation: RegExp "/\/(jpg|jpeg|png)$/"
+    destPath: string
+    filenameCb?: (req: any, file: any) => string
+*/
+
+export const UploadOption = (
+    mimeValidation: RegExp,
+    destPath: string,
+    filenameCb?: (req: any, file: any) => string
+) => {
     // Enable file size limits
-    limits: {
+    const limits = {
         fileSize: 20 * 1024 * 1000
-    },
+    }
     // Check the mimetypes to allow for upload
-    fileFilter: (req: any, file: any, cb: any) => {
-        if (file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+    const fileFilter = (req: any, file: any, cb: any) => {
+        if (file.mimetype.match(mimeValidation)) {
             // Allow storage of file
             cb(null, true)
         } else {
@@ -31,16 +43,13 @@ export const UploadOption = {
                 false
             )
         }
-    },
-    // Storage properties
-    storage: diskStorage({
-        // Destination storage path details
-        destination: (req: any, file: any, cb: any) => {
-            if (!existsSync(multerConfig.dest)) {
-                mkdirSync(multerConfig.dest)
-            }
+    }
 
-            const uploadPath = multerConfig.dest + '/financers'
+    // Storage properties
+    const storage = diskStorage({
+        // Destination storage path details
+        destination: (req: Request, file: Express.Multer.File, cb: any) => {
+            const uploadPath = destPath
             // Create folder if doesn't exist
             if (!existsSync(uploadPath)) {
                 mkdirSync(uploadPath)
@@ -48,9 +57,18 @@ export const UploadOption = {
             cb(null, uploadPath)
         },
         // File modification details
-        filename: (req: any, file: any, cb: any) => {
+        filename: (req: Request, file: Express.Multer.File, cb: any) => {
             // Calling the callback passing the random name generated with the original extension name
-            cb(null, `${uuid()}${extname(file.originalname)}`)
+            const filename = filenameCb
+                ? filenameCb(req, file)
+                : `${uuid()}${extname(file.originalname)}`
+            cb(null, filename)
         }
     })
+
+    return {
+        limits,
+        fileFilter,
+        storage
+    }
 }
