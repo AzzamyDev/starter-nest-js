@@ -1,4 +1,4 @@
-import { PoolConfig } from "mariadb"
+import { PoolConfig } from 'mariadb'
 
 export function getConnectionConfig(url: string): PoolConfig {
     if (!url) throw new Error('DATABASE_URL is not set')
@@ -16,6 +16,6 @@ export function getConnectionConfig(url: string): PoolConfig {
         user,
         password,
         connectionLimit: 10,
-        allowPublicKeyRetrieval: true,
+        allowPublicKeyRetrieval: true
     }
 }

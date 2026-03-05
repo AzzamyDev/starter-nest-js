@@ -12,8 +12,8 @@ export class PrismaService extends PrismaClient {
         const connectionConfig = getConnectionConfig(url)
         super({
             adapter: new PrismaMariaDb({
-                ...connectionConfig,
-            }),
+                ...connectionConfig
+            })
         })
     }
 }
