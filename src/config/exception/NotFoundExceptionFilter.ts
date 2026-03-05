@@ -4,7 +4,7 @@ import {
     ExceptionFilter,
     HttpStatus
 } from '@nestjs/common'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
+import { PrismaClientKnownRequestError } from '@prisma/generated/internal/prismaNamespace'
 import { Response } from 'express'
 
 @Catch(PrismaClientKnownRequestError)
@@ -18,8 +18,8 @@ export class NotFoundExceptionFilter implements ExceptionFilter {
             response.status(status).json({
                 statusCode: status,
                 message: exception.meta
-                    ? `Data ${exception.meta?.modelName ?? ''} tidak ditemukan`
-                    : 'Data tidak ditemukan'
+                    ? `Data ${exception.meta?.modelName ?? ''} not found`
+                    : 'Data not found'
             })
         } else {
             console.log(exception)

@@ -13,7 +13,7 @@ async function bootstrap() {
     })
 
     app.useGlobalFilters(new NotFoundExceptionFilter())
-    app.setGlobalPrefix('api')
+    // app.setGlobalPrefix('api')
     await app.listen(PORT)
 }
 bootstrap()
