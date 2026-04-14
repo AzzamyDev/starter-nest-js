@@ -1,0 +1,36 @@
+---
+description: NestJS project folder structure and naming conventions
+alwaysApply: true
+---
+
+# Project Structure
+
+```
+src/
+  config/        → third-party wiring & cross-cutting (env, prisma, exception filters)
+  features/      → feature modules (1 folder per domain resource)
+  helpers/        → shared pure utilities (no @Module / @Controller)
+prisma/
+  schema.prisma  → single source of truth for DB models
+  migrations/    → Prisma migrations
+  seed.ts        → database seeder
+```
+
+## Rules
+
+- Fitur baru selalu di `src/features/<feature-name>/`
+- Config/infra third-party di `src/config/<nama-config>/`
+- Pure utility/helper di `src/helpers/`
+- Jangan taruh business logic di `src/config/` atau `src/helpers/`
+
+## Naming
+
+- File: `kebab-case` → `create-user.dto.ts`, `users.controller.ts`
+- Class: `PascalCase` → `UsersService`, `CreateUserDto`
+- Route prefix: plural resource → `@Controller('users')`
+
+## Imports
+
+- Relative import dalam satu feature: `./users.service`
+- Cross-feature/config: absolute dari root → `src/config/prisma/prisma.service`
+- Prisma client: `@prisma/generated/client`

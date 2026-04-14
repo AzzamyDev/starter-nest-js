@@ -1,0 +1,61 @@
+---
+description: NestJS config layer — env configuration, Prisma setup, exception filters
+globs: src/config/**/*.ts
+alwaysApply: false
+---
+
+# Config Layer
+
+`src/config/` berisi wiring third-party dan cross-cutting concerns.
+
+## Environment Config
+
+Semua env variable diakses via `ConfigModule` + `configuration.ts`:
+
+```typescript
+// src/config/env/configuration.ts
+export default () => ({
+    app: { port: parseInt(process.env.PORT, 10) || 3000 },
+    database: { url: process.env.DATABASE_URL }
+})
+```
+
+Akses di service/main via `ConfigService`:
+
+```typescript
+const port = config.get<number>('app.port', { infer: true }) ?? 3000
+```
+
+Jangan akses `process.env` langsung di luar `configuration.ts`.
+
+## Prisma Setup
+
+- `PrismaService` extends `PrismaClient` — inject `ConfigService` untuk DB URL
+- `PrismaModule` harus `@Global()` agar semua feature bisa inject tanpa import ulang
+- Prisma client import dari `@prisma/generated/client`
+- Adapter: `@prisma/adapter-mariadb` (MySQL/MariaDB)
+
+```typescript
+@Global()
+@Module({ providers: [PrismaService], exports: [PrismaService] })
+export class PrismaModule {}
+```
+
+## Exception Filter
+
+- `NotFoundExceptionFilter` catch `PrismaClientKnownRequestError`
+- `P2025` → HTTP 404 dengan `{ statusCode, message }`
+- Register sebagai global filter di `main.ts`: `app.useGlobalFilters(new NotFoundExceptionFilter())`
+
+## App Module
+
+Global pipes/interceptors di `AppModule.providers`:
+
+```typescript
+providers: [
+    { provide: APP_PIPE, useClass: ZodValidationPipe },
+    { provide: APP_INTERCEPTOR, useClass: ZodSerializerInterceptor }
+]
+```
+
+Feature modules ditambahkan di `AppModule.imports`.

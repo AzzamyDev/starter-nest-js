@@ -1,0 +1,104 @@
+---
+description: NestJS feature module pattern — controller, service, DTO, module
+globs: src/features/**/*.ts
+alwaysApply: false
+---
+
+# Feature Module Pattern
+
+Setiap feature harus punya struktur:
+
+```
+src/features/<feature>/
+  dto/
+    create-<feature>.dto.ts
+    update-<feature>.dto.ts
+  <feature>.controller.ts
+  <feature>.service.ts
+  <feature>.module.ts
+```
+
+## Module
+
+```typescript
+@Module({
+    controllers: [<Feature>Controller],
+    providers: [<Feature>Service]
+})
+export class <Feature>Module {}
+```
+
+Register module di `AppModule.imports`.
+
+## DTO — Gunakan Zod + nestjs-zod
+
+```typescript
+import { createZodDto } from 'nestjs-zod'
+import { z } from 'zod'
+
+export const Create<Feature>Schema = z.object({
+    name: z.string(),
+    email: z.email()
+})
+
+export class Create<Feature>Dto extends createZodDto(Create<Feature>Schema) {}
+```
+
+Update DTO pakai `PartialType`:
+
+```typescript
+import { PartialType } from '@nestjs/mapped-types'
+export class Update<Feature>Dto extends PartialType(Create<Feature>Dto) {}
+```
+
+## Controller — Response Envelope
+
+Selalu return format `{ message, data }`:
+
+```typescript
+@Controller('<feature>')
+export class <Feature>Controller {
+    constructor(private readonly <feature>Service: <Feature>Service) {}
+
+    @Post()
+    async create(@Body() dto: Create<Feature>Dto) {
+        const result = await this.<feature>Service.create(dto)
+        return { message: '<Feature> created successfully', data: result }
+    }
+
+    @Delete(':id')
+    async remove(@Param('id') id: string) {
+        await this.<feature>Service.remove(+id)
+        return { message: '<Feature> deleted successfully' }
+    }
+}
+```
+
+## Service — Prisma Access
+
+- Inject `PrismaService` (global module, tidak perlu import `PrismaModule`)
+- Gunakan `findUniqueOrThrow` untuk existence check sebelum update/delete
+- Map DTO fields eksplisit pada `create`
+
+```typescript
+@Injectable()
+export class <Feature>Service {
+    constructor(readonly prismaService: PrismaService) {}
+
+    async create(dto: Create<Feature>Dto) {
+        return this.prismaService.<model>.create({
+            data: { name: dto.name, email: dto.email }
+        })
+    }
+
+    async update(id: number, dto: Update<Feature>Dto) {
+        await this.prismaService.<model>.findUniqueOrThrow({ where: { id } })
+        return this.prismaService.<model>.update({ where: { id }, data: dto })
+    }
+
+    async remove(id: number) {
+        await this.prismaService.<model>.findUniqueOrThrow({ where: { id } })
+        await this.prismaService.<model>.delete({ where: { id } })
+    }
+}
+```
