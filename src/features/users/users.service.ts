@@ -5,38 +5,38 @@ import { PrismaService } from 'src/config/prisma/prisma.service'
 
 @Injectable()
 export class UsersService {
-    constructor(readonly prismaService: PrismaService) {}
+	constructor(readonly prismaService: PrismaService) {}
 
-    async create(createUserDto: CreateUserDto) {
-        return this.prismaService.user.create({
-            data: {
-                name: createUserDto.name,
-                email: createUserDto.email,
-                password: createUserDto.password
-            }
-        })
-    }
+	async create(createUserDto: CreateUserDto) {
+		return this.prismaService.user.create({
+			data: {
+				name: createUserDto.name,
+				email: createUserDto.email,
+				password: createUserDto.password
+			}
+		})
+	}
 
-    async findAll() {
-        return this.prismaService.user.findMany()
-    }
+	async findAll() {
+		return this.prismaService.user.findMany()
+	}
 
-    async findOne(id: number) {
-        return this.prismaService.user.findUniqueOrThrow({ where: { id } })
-    }
+	async findOne(id: number) {
+		return this.prismaService.user.findUniqueOrThrow({ where: { id } })
+	}
 
-    async update(id: number, updateUserDto: UpdateUserDto) {
-        await this.prismaService.user.findUniqueOrThrow({ where: { id } })
+	async update(id: number, updateUserDto: UpdateUserDto) {
+		await this.prismaService.user.findUniqueOrThrow({ where: { id } })
 
-        return this.prismaService.user.update({
-            where: { id },
-            data: updateUserDto
-        })
-    }
+		return this.prismaService.user.update({
+			where: { id },
+			data: updateUserDto
+		})
+	}
 
-    async remove(id: number) {
-        await this.prismaService.user.findUniqueOrThrow({ where: { id } })
+	async remove(id: number) {
+		await this.prismaService.user.findUniqueOrThrow({ where: { id } })
 
-        await this.prismaService.user.delete({ where: { id } })
-    }
+		await this.prismaService.user.delete({ where: { id } })
+	}
 }

@@ -7,21 +7,21 @@ import configuration from './config/env/configuration'
 import { UsersModule } from './features/users/users.module'
 
 @Module({
-    imports: [
-        ConfigModule.forRoot({
-            isGlobal: true,
-            load: [configuration]
-        }),
-        PrismaModule,
-        UsersModule
-    ],
-    controllers: [],
-    providers: [
-        {
-            provide: APP_PIPE,
-            useClass: ZodValidationPipe
-        },
-        { provide: APP_INTERCEPTOR, useClass: ZodSerializerInterceptor }
-    ]
+	imports: [
+		ConfigModule.forRoot({
+			isGlobal: true,
+			load: [configuration]
+		}),
+		PrismaModule,
+		UsersModule
+	],
+	controllers: [],
+	providers: [
+		{
+			provide: APP_PIPE,
+			useClass: ZodValidationPipe
+		},
+		{ provide: APP_INTERCEPTOR, useClass: ZodSerializerInterceptor }
+	]
 })
 export class AppModule {}
